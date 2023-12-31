@@ -1,24 +1,18 @@
-import logo from './logo.svg';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 import './App.css';
+import FrontPage from './FrontPage';
+import QuestionSearch from './components/QuestionSearch';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+    <Link to={'/'} >Home</Link>
+    <Routes>
+      <Route path='/' element={ <FrontPage/> } />
+      <Route path="/questions/:questionId?" component={QuestionSearch} />
+      <Route path='*' element={ <h2>Page not found</h2> } />
+    </Routes>
+    </BrowserRouter>
   );
 }
 
