@@ -25,4 +25,4 @@ yarn-error.log*
 
 # environment
 /.env
-/server/.env
+
