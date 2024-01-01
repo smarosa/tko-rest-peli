@@ -1,7 +1,6 @@
 require('dotenv').config()
 const axios = require('axios');
 
-
 const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt')
@@ -35,23 +34,43 @@ const conf = {
 }
 
 
-app.get('/questions/:questionId', async (req, res) => {
-    const { questionId } = req.params;
+app.get('/subjects', async (req, res) => {
+    try {
+        const connection = await mysql.createConnection(conf);
+
+        const result = await connection.execute("SELECT DISTINCT question_subject as questionSubject FROM question");
+
+        res.json(result[0]);
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+app.get('/questions/:questionSubject', async (req, res) => {
+    const { questionSubject } = req.params;
 
     try {
         const connection = await mysql.createConnection(conf);
-       
+
         let result;
 
-        if (questionId) {
-            // Hakee kysymys jos questionId löytyy
-            result = await connection.execute("SELECT id questionId, question_subject questionSubject, question_text questionText, question_answer questionAnswer FROM question WHERE id = ?", [questionId]);
-        } else {
-            // Hakee kaikki kysymykset jos questionId ei löydy
-            result = await connection.execute("SELECT id questionId, question_subject questionSubject, question_text questionText, question_answer questionAnswer FROM question");
-        }
+        if (questionSubject) {
+            // Hakee kysymykset tietylle aiheelle
+            result = await connection.execute("SELECT id questionId, question_subject questionSubject, question_text questionText, question_answer questionAnswer FROM question WHERE question_subject = ?", [questionSubject]);
 
-        res.json(result[0]);
+            // Tarkista löytyykö kysymyksiä
+            if (result[0].length > 0) {
+                res.json(result[0]);
+            } else {
+                res.status(404).json({ error: 'No questions found for the selected subject.' });
+            }
+        } else {
+            // Hakee kaikki kysymykset jos aihe ei löydy
+            result = await connection.execute("SELECT id questionId, question_subject questionSubject, question_text questionText, question_answer questionAnswer FROM question");
+            res.json(result[0]);
+        }
 
     } catch (err) {
         res.status(500).json({ error: err.message });

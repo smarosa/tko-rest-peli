@@ -9,7 +9,7 @@ function App() {
     <Link to={'/'} >Home</Link>
     <Routes>
       <Route path='/' element={ <FrontPage/> } />
-      <Route path="/questions/:questionId?" component={QuestionSearch} />
+      <Route path="/questions" component={QuestionSearch} />
       <Route path='*' element={ <h2>Page not found</h2> } />
     </Routes>
     </BrowserRouter>

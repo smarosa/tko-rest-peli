@@ -1,59 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import SearchButton from './SearchButton';
-
-//Tässä versiossa data is haettu tietokannasta eikä näy automaattisesti mutta haku ei vielä toimi.
 
 const QuestionSearch = () => {
-  const { questionId } = useParams();
-  const [questions, setQuestions] = useState([]);
   const [filteredQuestions, setFilteredQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState('');
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/subjects');
+      const subjectsData = await response.json();
+      setSubjects(subjectsData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching subjects:', error);
+    }
+  };
+
+  const fetchQuestions = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/questions/${selectedSubject}`);
+      const questionsData = await response.json();
+      setFilteredQuestions(questionsData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchQuestions = async () => {
-      try {
-        const response = await fetch(`http://localhost:3001/questions/${questionId}`);
+    fetchSubjects();
+  }, []);
 
-        const questionData = await response.json();
-        setFilteredQuestions(questionData);
-
-        console.log(questionData)
-        setLoading(false);
-
-      } catch (error) {
-        console.error('Error fetching questions:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchQuestions();
-  }, [questionId]);
+  useEffect(() => {
+    if (selectedSubject) {
+      fetchQuestions();
+    }
+  }, [selectedSubject]);
 
 
   if (loading) {
-    return (
-      <h1>Loading...</h1>
-    );
+    return <h3>Loading...</h3>;
   }
-
-  const handleSearch = (searchTerm) => {
-    const filtered = filteredQuestions.filter((question) =>
-      question.questionText.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredQuestions(filtered);
-  };
 
   return (
     <div>
-      <p>Please search for a question to get started.</p>
-      <SearchButton onSearch={handleSearch} />
+      <p>Please select a subject to get started.</p>
 
-      <ul>
-        {filteredQuestions.map((question) => (
-          <li key={question.questionId}>{question.questionText}</li>
-        ))}
-      </ul>
+      <select onChange={(e) => setSelectedSubject(e.target.value)}>
+        <option value="">Select Subject</option>
+
+        {Array.isArray(subjects) &&
+          subjects.map((subject) => (
+            <option key={`subject-${subject.questionSubject}`} value={subject.questionSubject}>
+              {subject.questionSubject}
+            </option>
+          ))}
+      </select>
+
+      {filteredQuestions.length > 0 ? (
+        <div>
+          <p>Here are all the questions for the selected subject:</p>
+          {filteredQuestions.map((question) => (
+            <div key={question.questionId} style={{ marginBottom: '10px' }}>
+              <p>Q: {question.questionText}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>No questions found for the selected subject.</p>
+      )}
+
     </div>
   );
 };
