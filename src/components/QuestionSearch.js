@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import SearchButton from './SearchButton';
 
+//Tässä versiossa data is haettu tietokannasta eikä näy automaattisesti mutta haku ei vielä toimi.
+
 const QuestionSearch = () => {
   const { questionId } = useParams();
   const [questions, setQuestions] = useState([]);
@@ -14,7 +16,6 @@ const QuestionSearch = () => {
         const response = await fetch(`http://localhost:3001/questions/${questionId}`);
 
         const questionData = await response.json();
-        /*setQuestions(questionData);*/
         setFilteredQuestions(questionData);
 
         console.log(questionData)
@@ -37,7 +38,7 @@ const QuestionSearch = () => {
   }
 
   const handleSearch = (searchTerm) => {
-    const filtered = questions.filter((question) =>
+    const filtered = filteredQuestions.filter((question) =>
       question.questionText.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredQuestions(filtered);
