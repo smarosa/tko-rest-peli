@@ -66,6 +66,7 @@ const QuestionSearch = () => {
           {filteredQuestions.map((question) => (
             <div key={question.questionId} style={{ marginBottom: '10px' }}>
               <p>Q: {question.questionText}</p>
+              <p>A: {question.questionAnswer}</p>
             </div>
           ))}
         </div>
